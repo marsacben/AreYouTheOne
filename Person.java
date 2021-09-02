@@ -7,9 +7,9 @@ public class Person {
     private boolean foundMarch;
 
 
-    public Person(String name, LinkedList<Person> potentialMatches) {
+    public Person(String name, Boolean isMale) {
         this.name = name;
-        this.potentialMatches = potentialMatches;
+        this.isMale = isMale;
         foundMarch = false;
     }
 

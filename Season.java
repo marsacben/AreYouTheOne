@@ -9,12 +9,14 @@ public class Season {
     private LinkedList<Match> correctMatches;
     private LinkedList<Match> nonMatches;
     private LinkedList<Match> unconfirmed;
+    private LinkedList<Person> contestants;
     private Picks selection;
     private int obtainedBeams;
     private int unkownBeams;
 
-    public Season(Hashtable<Person, Person> contestants, boolean isQueer) {
-        secretMatchMaker = new SecretMatchMaker(contestants);
+    public Season(boolean isQueer, String[][] names, boolean[][] gender) {
+        secretMatchMaker = new SecretMatchMaker();
+        contestants = secretMatchMaker.makeCastWithGender(names, gender);
         correctMatches = new LinkedList<>();
         nonMatches = new LinkedList<>();
         unconfirmed = new LinkedList<>();
@@ -29,7 +31,17 @@ public class Season {
         unkownBeams =0;
     }
 
-    public
+    public int playSeason(){
+        //create season, create matches
+        String[][] names = {{"F1","F2","F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10"},
+                {"M1","M2","M3","M4","M5","M6","M7","M8","M9","M10"}};
+        boolean[][] gender= {{false,false,false,false,false,false,false,false,false,false},
+                {true,true,true,true,true,true,true,true,true,true}};
+        //loop of truth booth and ceremony
+        return 0;
+
+    }
+
 
     public void confirmMatch(Match m){
         correctMatches.add(m);
