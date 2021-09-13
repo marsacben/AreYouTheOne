@@ -13,6 +13,18 @@ public class Person {
         foundMarch = false;
     }
 
+    @Override
+    public String toString() {
+        return "Person{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
+    public Person(String name) {
+        this.name = name;
+        foundMarch = false;
+    }
+
     public String getName() {
         return name;
     }

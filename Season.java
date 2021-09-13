@@ -14,30 +14,49 @@ public class Season {
     private int obtainedBeams;
     private int unkownBeams;
 
-    public Season(boolean isQueer, String[][] names, boolean[][] gender) {
+    public Season( String[][] names, boolean[][] gender) {
         secretMatchMaker = new SecretMatchMaker();
-        contestants = secretMatchMaker.makeCastWithGender(names, gender);
+        contestants = secretMatchMaker.makeCast(names, gender);
+        System.out.println(secretMatchMaker.toString());
         correctMatches = new LinkedList<>();
         nonMatches = new LinkedList<>();
         unconfirmed = new LinkedList<>();
-        this.isQueer = isQueer;
-        if (isQueer){
-            numPairs =8;
-        }else{
-            numPairs =10;
-        }
+        this.isQueer = false;
+        numPairs =10;
         knowAllBeams = false;
         obtainedBeams =0;
         unkownBeams =0;
     }
 
+    public Season( String[][] names) {
+        secretMatchMaker = new SecretMatchMaker();
+        contestants = secretMatchMaker.makeCast(names);
+        correctMatches = new LinkedList<>();
+        nonMatches = new LinkedList<>();
+        unconfirmed = new LinkedList<>();
+        isQueer = true;
+        numPairs =8;
+        knowAllBeams = false;
+        obtainedBeams =0;
+        unkownBeams =0;
+    }
+
+    public LinkedList<Person> getContestants() {
+        return contestants;
+    }
+
+    public int ceremony(Picks p){
+        return secretMatchMaker.ceremony(p);
+    }
+
+    public boolean truthBoth(Match m){
+        return secretMatchMaker.isMatch(m.getP1(), m.getP2());
+    }
+
     public int playSeason(){
-        //create season, create matches
-        String[][] names = {{"F1","F2","F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10"},
-                {"M1","M2","M3","M4","M5","M6","M7","M8","M9","M10"}};
-        boolean[][] gender= {{false,false,false,false,false,false,false,false,false,false},
-                {true,true,true,true,true,true,true,true,true,true}};
+
         //loop of truth booth and ceremony
+
         return 0;
 
     }
@@ -45,12 +64,12 @@ public class Season {
 
     public void confirmMatch(Match m){
         correctMatches.add(m);
-        m.setMatch();
+        m.setmatch(true);
     }
 
     public void confirmNonMatch(Match m){
         nonMatches.add(m);
-        m.setNonMatch();
+        m.setmatch(false);
     }
 
     public void recordCeramonyFindingsfromSwap(int newbeams, int oldbeams, LinkedList<Match> newPairs) {
