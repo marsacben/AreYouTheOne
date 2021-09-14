@@ -1,16 +1,27 @@
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class Picks {
     private Match[] pairs;
-    private int length;
+    private int numMatch =0;
+    private int numNonMatch =0;
+    private int numUnkown;
 
     public int size() {
-        return length;
+        return pairs.length;
     }
 
     public Picks(Match[] pairs) {
         this.pairs = pairs;
-        this.length = this.pairs.length;
+        numUnkown= pairs.length -numMatch - numNonMatch;
+    }
+
+    public Picks(LinkedList<Match> p) {
+        pairs = new Match[p.size()];
+        for(int i=0; i<p.size(); i++){
+            pairs[i] = p.get(i);
+        }
+        numUnkown= pairs.length -numMatch - numNonMatch;
     }
 
     public Match[] getPairs() {
@@ -21,22 +32,86 @@ public class Picks {
         return pairs[i];
     }
 
-    public void swapPair(int i , int j, int[] toswitch){
-        Person[] a = {pairs[i].getP1(), pairs[i].getP2()};
-        Person[] b = {pairs[j].getP1(), pairs[j].getP2()};
-        Person as = a[toswitch[0]];
-        a[toswitch[0]] = b[toswitch[1]];
-        b[toswitch[1]] = as;
-        pairs[i].setP(a);
-        pairs[j].setP(b);
+    public int getNumUnkown() {
+        return numUnkown;
+    }
 
+    public int getNumMatch() {
+        return numMatch;
+    }
+
+    public void setNumNonMatch(int numNonMatch) {
+        this.numNonMatch = numNonMatch;
+    }
+
+    public void setNumUnkown(int numUnkown) {
+        this.numUnkown = numUnkown;
+    }
+
+    public void addNumMatch(int toAdd) {
+        this.numMatch = numMatch + toAdd;
+        numUnkown= pairs.length -numMatch - numNonMatch;
+    }
+
+    public int getNumNonMatch() {
+        return numNonMatch;
+    }
+
+    public void addNumNonMatch(int num) {
+        this.numNonMatch = numNonMatch + num;
+        numUnkown= pairs.length -numMatch - numNonMatch;
+    }
+
+    @Override
+    public String toString() {
+        return "Picks{" +
+                "pairs=" + Arrays.toString(pairs) +
+                '}';
+    }
+
+    public Match[] getUntestedPair(int num){
+        Match[] matches = new Match[num];
+        int i=0;
+        int j=0;
+        while(j<num && i<pairs.length){
+            if(pairs[i].isunconfirmed()){
+                matches[j] = pairs[i];
+                j++;
+            }
+            i++;
+        }
+        return matches;
+    }
+
+    public LinkedList<Person> getConfirmed(){
+        LinkedList<Person> confirmed = new LinkedList<>();
+        for(int i=0; i<pairs.length; i++){
+            if(pairs[i].ismatch()){
+                confirmed.add(pairs[i].getP1());
+                confirmed.add(pairs[i].getP2());
+            }
+        }
+        return confirmed;
+    }
+
+    public void swapPair(PairSwap ps){
+        ps.toString();
+        int j=0;
+        for(int i =0; i< pairs.length; i++){
+            if(pairs[i].equals(ps.getOldP()[0]) || pairs[i].equals(ps.getOldP()[1])){
+                pairs[i]= ps.getNewP()[j];
+                j++;
+            }
+        }
+        return;
     }
 
     public void swapAllnonMatches(LinkedList<Match> newPairs){
         int j =0;
+        setNumNonMatch(0);
         for(int i=0; i<pairs.length; i++){
             if(!pairs[i].ismatch()){
-                newPairs.get(j);
+                pairs[i] = newPairs.get(j);
                 j++;
             }
         }
