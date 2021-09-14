@@ -120,10 +120,12 @@ public class TestSeason {
             dv.recordTruthBoth(isMatch);
             System.out.println("TruthBoth: " + m.getP1().getName() + ", " + m.getP2().getName() + " -" + isMatch);
             Picks p = dv.getPicks();
+            System.out.println("unkown:" + p.getNumUnkown() + " matches:" + p.getNumMatch() + " nonmatches:" + p.getNumNonMatch());
             System.out.println("Ceremony: " +  p.toString() );
             int numCorrect = s.ceremony(p);
             dv.recordCeremony(numCorrect);
             System.out.println( "NumCorrect: " +  numCorrect);
+            System.out.println("unkown:" + p.getNumUnkown() + " matches:" + p.getNumMatch() + " nonmatches:" + p.getNumNonMatch());
         }
     }
 }

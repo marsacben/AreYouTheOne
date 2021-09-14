@@ -94,6 +94,16 @@ public class Picks {
         return confirmed;
     }
 
+    public LinkedList<Match> getUnConfirmed(){
+        LinkedList<Match> nonConfirmed = new LinkedList<>();
+        for(int i=0; i<pairs.length; i++){
+            if(pairs[i].isunconfirmed()){
+                nonConfirmed.add(pairs[i]);
+            }
+        }
+        return nonConfirmed;
+    }
+
     public void swapPair(PairSwap ps){
         ps.toString();
         int j=0;
@@ -107,6 +117,8 @@ public class Picks {
     }
 
     public void swapAllnonMatches(LinkedList<Match> newPairs){
+        System.out.println("swapAllnonMatches");
+        System.out.println("newPairs.size()" + newPairs.size());
         int j =0;
         setNumNonMatch(0);
         for(int i=0; i<pairs.length; i++){
@@ -115,5 +127,15 @@ public class Picks {
                 j++;
             }
         }
+    }
+
+    public int cntNumNonMatch(){
+        int num =0;
+        for(int i=0; i<pairs.length; i++){
+            if(!pairs[i].ismatch()){
+                num++;
+            }
+        }
+        return num;
     }
 }

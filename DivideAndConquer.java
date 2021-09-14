@@ -10,13 +10,14 @@ public class DivideAndConquer {
     private LinkedList<Person> contestants;
     private LinkedList<Match> testingPairs;
     private PairSwap pairSwap;
-    private TruthBothSelection truthBoth;
+    private TruthBothSelection truthBooth;
     private Picks picks;
     private int unknownBeams;
     private int beamsToFind;
     private int prevBeams;
     private int numPairs;
     private boolean stateSwaping = false;
+    private Picks prevPick;
 
     @Override
     public String toString() {
@@ -27,7 +28,7 @@ public class DivideAndConquer {
                 ", untested=" + untested + newline+
                 ", testingPairs=" + testingPairs + newline+
                 ", pairSwap=" + pairSwap + newline+
-                ", truthBoth=" + truthBoth + newline+
+                ", truthBoth=" + truthBooth + newline+
                 ", unknownBeams=" + unknownBeams + newline+
                 ", beamsToFind=" + beamsToFind + newline+
                 ", prevBeams=" + prevBeams + newline+
@@ -54,13 +55,14 @@ public class DivideAndConquer {
         }else{
             findAllPossiblePairsStraight(this.contestants);
         }
-        this.testingPairs = getUntestedMatches(numPairs, new LinkedList<>());
+        //this.testingPairs = getUntestedMatches(numPairs, new LinkedList<>());
         this.unknownBeams =0;
         this.prevBeams =0;
-        this.picks = new Picks(testingPairs);
-        this.truthBoth = new TruthBothSelection(picks.getUntestedPair(1)[0], null);
-        this.pairSwap = new PairSwap(picks.getUntestedPair(2));
+        this.picks = new Picks(getUntestedMatches(numPairs, new LinkedList<>()));
+        this.truthBooth = null;
+        this.pairSwap = null;
         this.beamsToFind =0;
+        this.stateSwaping = false;
     }
 
     public void findAllPossiblePairsQueer(LinkedList<Person> contestants){
@@ -91,7 +93,20 @@ public class DivideAndConquer {
         }
         System.out.println("all possible pairs" + allPossiblePairs.toString());
     }
-    public boolean hasStarted =false;
+
+    public Picks getPicks(){
+        //if only one left
+        if(stateSwaping){
+            pairSwap = new PairSwap(picks.getUntestedPair(2));
+            System.out.println("swapping " + pairSwap.getOldP()[0].toString() + ", " + pairSwap.getOldP()[1].toString()+ " to " + pairSwap.getNewP()[0] + ", " + pairSwap.getNewP()[1].toString());
+            picks.swapPair(pairSwap);
+        }
+        else{
+            stateSwaping = true;
+        }
+        return picks;
+    }
+/*
     public Picks getPicks(){
         System.out.println("unkown:" + picks.getNumUnkown() + " matched: " + picks.getNumMatch() + "nonmatches: " + picks.getNumNonMatch());
         if(!hasStarted){
@@ -106,6 +121,7 @@ public class DivideAndConquer {
         }
         return picks;
     }
+*/
 
     /*public Picks getPicks(int numPairs){
         Match[] matches = new Match[numPairs];
@@ -135,25 +151,28 @@ public class DivideAndConquer {
     }*/
 
     public Match getTruthBoth(){
-        if(truthBoth == null){
-            truthBoth = new TruthBothSelection(picks.getUntestedPair(1)[0], null);
+        if(truthBooth == null){
+            truthBooth = new TruthBothSelection(picks.getUntestedPair(1)[0], null);
         }
-        return truthBoth.getSent();
+        return truthBooth.getSent();
     }
 
         public void recordCeremony(int newbeams){
-        //Yoy know who all the previous matchs are
-        if(picks.getNumUnkown() == 0){
-            //mark all non matches
-            recordNewMatchBatch(newbeams);
-        }
-        //looking for beams
-        else{
-            recordBeamSearchSwap(newbeams);
-            // fix if(testingPairs.size()<2){
-            pairSwap = new PairSwap(picks.getUntestedPair(2));
-        }
-        prevBeams = newbeams;
+            if(stateSwaping && pairSwap!=null){
+                recordBeamSearchSwap(newbeams);
+            }
+            else{
+                recordNewMatchBatch(newbeams);
+                stateSwaping = true;
+            }
+            prevBeams = newbeams;
+            if(picks.getNumUnkown() <= 1){
+                stateSwaping = false;
+                System.out.print("num to 1replace " + (numPairs - getPicks().getNumMatch()));
+                picks.swapAllnonMatches(getUntestedMatches(numPairs - getPicks().getNumMatch(), picks.getConfirmed()));
+            }
+            prevBeams = newbeams;
+            prevPick = picks;
     }
     //marks any new confirmed match or non match and creates a new list of testing pairs
 /*    public void recordCeremony(int newbeams){
@@ -194,37 +213,38 @@ public class DivideAndConquer {
         if(diff == 0){  //non matches
             recordNonMatch(pairSwap.getNewP()[0]);
             recordNonMatch(pairSwap.getNewP()[1]);
-            recordNonMatch(pairSwap.getOldP()[0]);
-            recordNonMatch(pairSwap.getOldP()[1]);
-            truthBoth = new TruthBothSelection(picks.getUntestedPair(1)[0], null);
+            //recordNonMatch(pairSwap.getOldP()[0]);
+            //recordNonMatch(pairSwap.getOldP()[1]);
         }
         else{
             if(diff == 2){ //both pairs are matches
                 recordConfirmedMatch(pairSwap.getNewP()[0]);
                 recordConfirmedMatch(pairSwap.getNewP()[1]);
-                recordNonMatch(pairSwap.getOldP()[0]);
-                recordNonMatch(pairSwap.getOldP()[1]);
-                truthBoth = new TruthBothSelection(picks.getUntestedPair(1)[0], null);
+                //recordNonMatch(pairSwap.getOldP()[0]);
+                //recordNonMatch(pairSwap.getOldP()[1]);
             }
             else {
                 if (diff == -2) {
                     recordConfirmedMatch(pairSwap.getOldP()[0]);
                     recordConfirmedMatch(pairSwap.getOldP()[1]);
-                    recordNonMatch(pairSwap.getNewP()[0]);
-                    recordNonMatch(pairSwap.getNewP()[1]);
+                    picks = prevPick;
+                    //picks.swapPair(new PairSwap(pairSwap.getNewP()));
+                    //recordNonMatch(pairSwap.getNewP()[0]);
+                    //recordNonMatch(pairSwap.getNewP()[1]);
                     beamsToFind -=2;
-                    truthBoth = new TruthBothSelection(picks.getUntestedPair(1)[0], null);
                 } else {
                     if (diff == 1) {
-                        recordNonMatch(pairSwap.getOldP()[0]);
-                        recordNonMatch(pairSwap.getOldP()[1]);
-                        truthBoth = new TruthBothSelection(pairSwap.getNewP()[0], pairSwap.getNewP()[1]);
+                        //recordNonMatch(pairSwap.getOldP()[0]);
+                        //recordNonMatch(pairSwap.getOldP()[1]);
+                        truthBooth = new TruthBothSelection(pairSwap.getNewP()[0], pairSwap.getNewP()[1]);
                     } else {
                         // ==-1
-                        recordNonMatch(pairSwap.getNewP()[0]);
-                        recordNonMatch(pairSwap.getNewP()[1]);
+                        //recordNonMatch(pairSwap.getNewP()[0]);
+                        //recordNonMatch(pairSwap.getNewP()[1]);
+                        //picks.swapPair(new PairSwap(pairSwap.getNewP()));
+                        picks = prevPick;
                         beamsToFind -=1;
-                        truthBoth = new TruthBothSelection(pairSwap.getOldP()[0], pairSwap.getOldP()[1]);
+                        truthBooth = new TruthBothSelection(pairSwap.getOldP()[0], pairSwap.getOldP()[1]);
                     }
                 }
             }
@@ -233,46 +253,49 @@ public class DivideAndConquer {
     }
 
     public void recordTruthBoth(boolean ans){
-        testingPairs.remove(truthBoth.getSent());
+        //testingPairs.remove(truthBoth.getSent());
         if(ans){
-            recordConfirmedMatch(truthBoth.getSent());
+            recordConfirmedMatch(truthBooth.getSent());
             beamsToFind -=1;
-            if(truthBoth.getDependant()!=null){
-                recordNonMatch(truthBoth.getDependant());
-                testingPairs.remove(truthBoth.getDependant());
+            if(truthBooth.getDependant()!=null){
+                recordNonMatch(truthBooth.getDependant());
+                //testingPairs.remove(truthBoth.getDependant());
             }
         }
         else{
-            recordNonMatch(truthBoth.getSent());
-            if(truthBoth.getDependant()!=null){
-                recordConfirmedMatch(truthBoth.getDependant());
+            recordNonMatch(truthBooth.getSent());
+            if(truthBooth.getDependant()!=null){
+                recordConfirmedMatch(truthBooth.getDependant());
                 beamsToFind -=1;
-                testingPairs.remove(truthBoth.getDependant());
+                //testingPairs.remove(truthBoth.getDependant());
             }
         }
-        truthBoth = null;
+        if(picks.getNumUnkown() <= 1){
+            stateSwaping = false;
+            System.out.println("num to 2replace " + (numPairs - getPicks().getNumMatch()));
+            picks.swapAllnonMatches(getUntestedMatches(numPairs - getPicks().getNumMatch(), picks.getConfirmed()));
+        }
+        truthBooth = null;
 
     }
 
     public void recordNewMatchBatch(int newBeams){
         int diff  = newBeams - prevBeams;
         if(diff == 0){ //all non matches
-            recordNonMatches(testingPairs);
-            //select new batch
-            //testingPairs = getUntestedMatches(numPairs- correctMatches.size(), getMandatoryPeople());
-            truthBoth = new TruthBothSelection(picks.getUntestedPair(1)[0], null);
+            recordNonMatches(picks.getUnConfirmed());
+            System.out.println("num unconfirmed" + picks.getNumUnkown());
         }else{
            //find the matches by swapping pairs
             beamsToFind = diff;
             //picks.setNumUnkown(numPairs- picks.getNumMatch());
             //picks.setNumNonMatch(0);
-            pairSwap = new PairSwap(picks.getUntestedPair(2));
             //picks.swapPair(pairSwap);
         }
     }
 
     public LinkedList<Match> getUntestedMatches(int numMatches, LinkedList<Person> people){
         //System.out.println("IN GET BATCH");
+        System.out.println("num to 3replace " + numMatches);
         Enumeration<Person> e = allPossiblePairs.keys();
         LinkedList<Match> matches = new LinkedList<>();
         while(e.hasMoreElements() && matches.size()<numMatches){
@@ -291,7 +314,7 @@ public class DivideAndConquer {
                             people.add(m.getP2());
                             allPossiblePairs.get(key).remove(p);
                             allPossiblePairs.get(p).remove(key);
-                            System.out.println("Added Match: " + m.toString() + " mateches size:" + matches.size());
+                            System.out.println("Added Match: " + m.toString() + " matches size:" + matches.size());
                             i = l.size();
                         }
                     }
@@ -316,7 +339,7 @@ public class DivideAndConquer {
         picks.addNumNonMatch(1);
         //allPossiblePairs.get(m.getP1()).remove(m.getP2());
         //allPossiblePairs.get(m.getP2()).remove(m.getP1());
-        testingPairs.remove(m);
+        //testingPairs.remove(m);
     }
 
     public void recordNonMatches(LinkedList<Match> l){
