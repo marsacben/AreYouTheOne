@@ -87,5 +87,6 @@ public class Match {
 
     public void setmatch(boolean ismatch) {
         this.ismatch = ismatch;
+        this.unconfirmed =false;
     }
 }
