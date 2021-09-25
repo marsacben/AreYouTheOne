@@ -123,7 +123,7 @@ public class Picks {
         return;
     }
 
-    public void swapAllnonMatches(LinkedList<Match> newPairs, int numNonMatch){
+    public void swapAllnonMatches(LinkedList<Match> newPairs){
         System.out.println("swapAllnonMatches");
         System.out.println("newPairs.size()=" + newPairs.size());
         System.out.println("numNonM=" + numNonMatch);
@@ -136,7 +136,7 @@ public class Picks {
                 j++;
             }
         }
-        this.numNonMatch = numNonMatch;
+        this.numNonMatch = 0;
         this.numUnkown = this.pairs.length - this.numMatch - this.numNonMatch;
     }
 

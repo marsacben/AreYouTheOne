@@ -79,8 +79,7 @@ public class DivideAndConquer {
         }
     }
 
-    LinkedList<Match> unTestedPairs = new LinkedList<>();
-    public void ListPairsStraight(LinkedList<Person> contestants){
+    public LinkedList<Person>[] separateGender(LinkedList<Person> contestants){
         LinkedList<Person> m = new LinkedList<>();
         LinkedList<Person> f = new LinkedList<>();
         for(int i =0; i<contestants.size(); i++){
@@ -91,6 +90,15 @@ public class DivideAndConquer {
                 f.add(p);
             }
         }
+        return new LinkedList[]{m,f};
+    }
+    LinkedList<Match> unTestedPairs = new LinkedList<>();
+    public void ListPairsStraight(LinkedList<Person> contestants){
+        LinkedList<Person> m = new LinkedList<>();
+        LinkedList<Person> f = new LinkedList<>();
+        LinkedList<Person>[] c = separateGender(contestants);
+        m= c[0];
+        f= c[1];
 
         for(int i =0; i<m.size(); i++){
             for(int k=0; k<f.size(); k++){
@@ -340,6 +348,7 @@ public class DivideAndConquer {
     }
 
     int numMissing=0;
+    //original in line pick
     public LinkedList<Match> getUntestedMatches2(int numMatches, LinkedList<Person> people){
         //System.out.println("IN GET BATCH");
         LinkedList<Person> peopleOrig = new LinkedList<>();
@@ -418,8 +427,72 @@ public class DivideAndConquer {
             recordNonMatch(l.get(i));
         }
     }
+    public LinkedList<Match> getUntestedMatches(int numMatches, LinkedList<Person> toExclude) {
+        LinkedList<Match> matches = new LinkedList<>();
+        LinkedList<Person> people = new LinkedList<>();
+        people.addAll(contestants);
+        people.removeAll(toExclude);
+        if (people.isEmpty()) {
+            System.out.println("PEOPLE IS EMPTY!");
+            return matches;
+        }
+        LinkedList<Person>[] c = separateGender(people);
+        LinkedList<Person> m = c[0];
+        LinkedList<Person> f = c[1];
+        boolean notdone = true;
+        while (notdone) {
+            // check if pick works
+            boolean works = true;
+            for (int i = 0; i < m.size(); i++) {
+                //if the can be matched
+                if (!allPossiblePairs.get(m.get(i)).contains(f.get(i))) {
+                    works = false;
+                }
+            }
+            if (works) {
+                for (int i = 0; i < m.size(); i++) {
+                    Match pair = new Match(m.get(i), f.get(i));
+                    matches.add(pair);
+                }
+                notdone = false;
+            } else {
+                f.addLast(f.pop()); //shift over one space
+            }
+        }
+        return matches;
+    }
 
-    public LinkedList<Match> getUntestedMatches(int numMatches, LinkedList<Person> people){
+    //recursive tree
+    public LinkedList<Match> getUntestedMatches5(int numMatches, LinkedList<Person> toExclude){
+        LinkedList<Match> matches = new LinkedList<>();
+        LinkedList<Person> people = new LinkedList<>();
+        people.addAll(contestants);
+        people.removeAll(toExclude);
+        if(people.isEmpty()){
+            return matches;
+        }
+        Person p1 = people.get(0);
+        for(int i=1; i< people.size(); i++){
+            Person p2 = people.get(i);
+            if(allPossiblePairs.get(p1).contains(p2)) {
+                LinkedList<Person> newtoExclude = new LinkedList<>();
+                newtoExclude.addAll(toExclude);
+                newtoExclude.add(p1);
+                newtoExclude.add(p2);
+                LinkedList<Match> l = getUntestedMatches(numMatches - 1, newtoExclude);
+                if (l.size() + 1 == numMatches) {
+                    Match m = new Match(p1, p2);
+                    l.add(m);
+                    matches = l;
+                    i=people.size();
+                }
+            }
+        }
+        return matches;
+    }
+
+    //from table
+    public LinkedList<Match> getUntestedMatches4(int numMatches, LinkedList<Person> people){
         System.out.println("In getUntestedMatches: num to get = " + numMatches);
         LinkedList<Match> matches = new LinkedList<>();
         for(int i=0; i<unTestedPairs.size(); i++){

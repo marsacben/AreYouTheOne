@@ -100,6 +100,7 @@ public class TestSeason {
         }
     }
 
+
     @Test
     public void testDivideAndConquerStraight(){
         //create season, create matches
@@ -171,5 +172,82 @@ public class TestSeason {
         people =getContestantByName(pname,contestants);
         LinkedList match3 = dv.getUntestedMatches(10, people);
         assertEquals(match3.size(), 7);
+    }
+
+    @Test
+    public void testMinMaxGetCeremony(){
+        LinkedList<Person> l1 = new LinkedList<>();
+        l1.add(new Person("F1"));
+        l1.add(new Person("F2"));
+        l1.add(new Person("F3"));
+        l1.add(new Person("F4"));
+
+        LinkedList<Person> l2 = new LinkedList<>();
+        l2.add(new Person("M1"));
+        l2.add(new Person("M2"));
+        l2.add(new Person("M3"));
+        l2.add(new Person("M4"));
+
+        System.out.println("group1:" + l1.toString());
+        System.out.println("group2:" + l2.toString());
+        MiniMax miniMax = new MiniMax(l2,l1);
+        String[][] names = {{"M1", "M2", "M3", "M4"},
+                            {"M1", "M2", "M4", "M3"},
+                            {"M1", "M3", "M2", "M4"},
+                            {"M1", "M3", "M4", "M2"},
+                            {"M1", "M4", "M2", "M3"},
+                            {"M1", "M4", "M3", "M2"}};
+        for(int i=0; i<6; i++){
+            if(miniMax.on == null){
+                System.out.println("on is null! 201");
+            }
+            else{
+                System.out.println("on is not null! 201");
+            }
+            Picks p = miniMax.getCeremony();
+            if(miniMax.on != null){
+                System.out.println("on is not null! 205");
+            }
+            else{
+                System.out.println("on is null! 201");
+            }
+            System.out.println("i=" + i);
+            for(int j=0; j<4; j++) {
+
+                Match m = p.getPairs()[i];
+                Person person = m.getP2();
+                String n = person.getName();
+                assertEquals(n, names[i][j]);
+            }
+        }
+
+    }
+
+    @Test
+    public void testHumanStraight(){
+        //create season, create matches
+        String[][] names = {{"F1","F2","F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10"},
+                {"M1","M2","M3","M4","M5","M6","M7","M8","M9","M10"}};
+        boolean[][] gender= {{false,false,false,false,false,false,false,false,false,false},
+                {true,true,true,true,true,true,true,true,true,true}};
+        Season s = new Season(names, gender);
+        LinkedList<Person> contestants = s.getContestants();
+        LinkedList<Person> unConfirmedContestants = new LinkedList<>();
+        unConfirmedContestants.addAll(contestants);
+        TestUtil t = new TestUtil();
+        LinkedList<Match> confirmedMatch = new LinkedList<Match>();
+        for(int i=0; i<10; i++){
+            Match m = t.randomPairStraight(unConfirmedContestants);
+            boolean isMatch = s.truthBoth(m);
+            System.out.println("TruthBoth: " + m.getP1().getName() + ", " + m.getP2().getName() + " -" + isMatch);
+            if(isMatch){
+                confirmedMatch.add(m);
+                unConfirmedContestants.remove(m.getP1());
+                unConfirmedContestants.remove(m.getP1());
+            }
+            Picks p = t.randomSelection(contestants, 10,false, confirmedMatch);
+            int numCorrect = s.ceremony(p);
+            System.out.println("Ceremony: " +  p.toString() + "NumCorrect: " +  numCorrect);
+        }
     }
 }
