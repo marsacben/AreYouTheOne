@@ -3,6 +3,7 @@ import java.util.LinkedList;
 
 public class Picks {
     private Match[] pairs;
+    private Match[] oldPairs;
     private int numMatch =0;
     private int numNonMatch =0;
     private int numUnkown;
@@ -13,6 +14,7 @@ public class Picks {
 
     public Picks(Match[] pairs) {
         this.pairs = pairs;
+        this.oldPairs = pairs.clone();
         numUnkown= pairs.length -numMatch - numNonMatch;
     }
 
@@ -26,6 +28,10 @@ public class Picks {
 
     public Match[] getPairs() {
         return pairs;
+    }
+
+    public void restore(){
+        this.pairs = this.oldPairs.clone();
     }
 
     public Match getPair(int i) {
@@ -94,7 +100,18 @@ public class Picks {
         return confirmed;
     }
 
+    public LinkedList<Match> getUnConfirmed(){
+        LinkedList<Match> nonConfirmed = new LinkedList<>();
+        for(int i=0; i<pairs.length; i++){
+            if(pairs[i].isunconfirmed()){
+                nonConfirmed.add(pairs[i]);
+            }
+        }
+        return nonConfirmed;
+    }
+
     public void swapPair(PairSwap ps){
+        oldPairs = pairs.clone();
         ps.toString();
         int j=0;
         for(int i =0; i< pairs.length; i++){
@@ -107,6 +124,10 @@ public class Picks {
     }
 
     public void swapAllnonMatches(LinkedList<Match> newPairs){
+        System.out.println("swapAllnonMatches");
+        System.out.println("newPairs.size()=" + newPairs.size());
+        System.out.println("numNonM=" + numNonMatch);
+        System.out.println(this.toString());
         int j =0;
         setNumNonMatch(0);
         for(int i=0; i<pairs.length; i++){
@@ -115,5 +136,17 @@ public class Picks {
                 j++;
             }
         }
+        this.numNonMatch = 0;
+        this.numUnkown = this.pairs.length - this.numMatch - this.numNonMatch;
+    }
+
+    public int cntNumNonMatch(){
+        int num =0;
+        for(int i=0; i<pairs.length; i++){
+            if(!pairs[i].ismatch()){
+                num++;
+            }
+        }
+        return num;
     }
 }
