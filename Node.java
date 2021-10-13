@@ -31,12 +31,34 @@ public class Node {
         children.remove(val);
         return children;
     }
-    public Node addChildNode(LinkedList<Person> contestants, LinkedList<Person> toskip){
+    public Node addChildNode(LinkedList<Person> grandChildren, LinkedList<Person> toskip, LinkedList<Person> newabove){
+        //System.out.println("in new node depth:" +depth+", to pick" + grandChildren.toString());
+        Person newVal = grandChildren.pop();
+        grandChildren.addAll(toskip);
+        for(int i =0; i<ChildrenNodes.size(); i++){
+            grandChildren.add(ChildrenNodes.get(i).val);
+        }
+        Node c = new Node(newabove,this, grandChildren, newVal, depth+1);
+        this.ChildrenNodes.add(c);
+        this.children.remove(c.val);
+        //System.out.println("val n: " + c.val);
+        //System.out.println("above n: " + c.above);
+        //System.out.println("children n: " + c.children);
+        return c;
+    }
+
+    public LinkedList<Person> getNewAbove(){
         LinkedList<Person> newabove = new LinkedList<>();
         newabove.addAll(above);
         if(val != null){
             newabove.add(val);
         }
+        //System.out.println("newabove size " + newabove.size() +" depth" + depth);
+        return newabove;
+    }
+
+    public LinkedList<Person> getAvailChildren(LinkedList<Person> contestants, LinkedList<Person> toskip, LinkedList<Person> newabove ){
+
         //System.out.println("newA n: " + newabove);
         //System.out.println("con n: " + contestants);
         LinkedList<Person> grandChildren = new LinkedList<>();
@@ -52,19 +74,12 @@ public class Node {
             grandChildren.remove(ChildrenNodes.get(i).val);
         }
         //System.out.println(grandChildren);
-        grandChildren.removeAll(toskip);
-        //System.out.println("available" + toskip);
-        Person newVal = grandChildren.pop();
-        grandChildren.addAll(toskip);
-        for(int i =0; i<ChildrenNodes.size(); i++){
-            grandChildren.add(ChildrenNodes.get(i).val);
+        //grandChildren.removeAll(toskip);
+        for(int i=0; i<toskip.size(); i++){
+            if(grandChildren.contains(toskip.get(i))){
+                grandChildren.remove(toskip.get(i));
+            }
         }
-        Node c = new Node(newabove,this, grandChildren, newVal, depth+1);
-        this.ChildrenNodes.add(c);
-        this.children.remove(c.val);
-        //System.out.println("val n: " + c.val);
-        //System.out.println("above n: " + c.above);
-        //System.out.println("children n: " + c.children);
-        return c;
+        return grandChildren;
     }
 }

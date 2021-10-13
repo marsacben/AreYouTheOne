@@ -63,6 +63,7 @@ public class SecretMatchMaker {
         contestants.addAll(contestants1);
         contestants.addAll(contestants2);
         for(int i=0; i< contestants1.size(); i++){
+           // System.out.println("i= " +i+"  m= "+ contestants1.get(i).getName() + "  f= " + contestants2.get(order.get(i)-1).getName() + "  order="+ order.get(i));
             perfectMatches.put(contestants1.get(i), contestants2.get(order.get(i)-1));
         }
         return contestants;
