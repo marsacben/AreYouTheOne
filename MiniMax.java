@@ -53,6 +53,7 @@ public class MiniMax {
         }*/
         int numAbove = (contestants.size()/2) -2;
         //while(true) {
+        //on = head;
             //if already a leaf// going up
             traverseUp();
             //traversing down - works
@@ -63,11 +64,11 @@ public class MiniMax {
     }
 
     public void traverseUp(){
-        boolean onChopped = false;
-        if(ruledOut.containsKey(on.depth)){
-            onChopped = ruledOut.get(on.depth).contains(on.val);
-        }
-        while ((on.children.isEmpty() || onChopped) && on.parent !=null) { // && !(on.parent == null)){
+        //boolean onChopped = false;
+        //if(ruledOut.containsKey(on.depth)){
+        //    onChopped = ruledOut.get(on.depth).contains(on.val);
+        //}
+        while ((on.children.isEmpty() || isOnChopped()) && on.parent !=null) { // && !(on.parent == null)){
             //System.out.println("val e: " + on.val);
            /// System.out.println("above e: " + on.above);
             //System.out.println("children e: " + on.children);
@@ -79,7 +80,9 @@ public class MiniMax {
                 on = on.parent;
                 on.children.remove(nameprev);
             }
-
+            //if(ruledOut.containsKey(on.depth)){
+            //    onChopped = ruledOut.get(on.depth).contains(on.val);
+            //}
         }
         traverseDown();
     }
@@ -103,7 +106,8 @@ public class MiniMax {
 
             LinkedList<Person> newabove = on.getNewAbove();
             //System.out.println("contestants1: " + contestants );
-            on.children = on.getAvailChildren(contestants, toskip, newabove);
+            boolean noRepeat = !confirmedAtdepth.contains(on.depth +1);
+            on.children = on.getAvailChildren(contestants, toskip, newabove, true);
             //System.out.println("toskip: " + toskip.toString() );
             //.out.println("val t: " + on.val + " depth:" + on.depth);
             //System.out.println("above t: " + on.above + " newabove " +newabove);
@@ -211,8 +215,21 @@ public class MiniMax {
         if (ruledOut.containsKey(depth)) {
             l.addAll(ruledOut.get(depth));
         }
-        l.add(p);
+        if(!l.contains(p)){
+            l.add(p);
+        }
         ruledOut.put(depth, l);
+        if(l.size() == (toMatch.size() -1)){ //if only one option left
+            Person person = null;
+            int i=0;
+            while(person == null){
+                if(!l.contains(contestants.get(i))){
+                    person=contestants.get(i);
+                }
+                i++;
+            }
+            setFound(depth,person);
+        }
     }
 
     public void setFound(int depth, Person p){
@@ -239,6 +256,7 @@ public class MiniMax {
     }
 
     public Match getTruthBooth(){
+        updateIncomplete();
         Node tb = TBhead;
         Node n = breadthFirstSearch(tb);
         TBdepth = n.depth;
@@ -253,7 +271,7 @@ public class MiniMax {
             toskip.addAll(ruledOut.get(tb.depth + 1));
         }
         LinkedList<Person> newabove = tb.getNewAbove();
-        tb.children = tb.getAvailChildren(contestants, toskip, newabove);
+        tb.children = tb.getAvailChildren(contestants, toskip, newabove, false);
 
         //get validChild
         tb = tb.addChildNode(tb.children, toskip, newabove);
@@ -271,6 +289,23 @@ public class MiniMax {
         }else{
             setRuledOut(TBdepth, TBNode.val);
         }
+        updateIncomplete();
+    }
+
+    public boolean isOnChopped(){
+        boolean onChopped = false;
+        LinkedList<Person> branch = new LinkedList<>();
+        branch.addAll(on.above);
+        branch.add(on.val);
+        for(int i = 0; i< branch.size(); i++){
+            if(ruledOut.containsKey(i)){
+                onChopped = ruledOut.get(i).contains(branch.get(i));
+                if(onChopped){
+                    i= branch.size();
+                }
+            }
+        }
+        return onChopped;
     }
 
 }

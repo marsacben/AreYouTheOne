@@ -57,7 +57,7 @@ public class Node {
         return newabove;
     }
 
-    public LinkedList<Person> getAvailChildren(LinkedList<Person> contestants, LinkedList<Person> toskip, LinkedList<Person> newabove ){
+    public LinkedList<Person> getAvailChildren(LinkedList<Person> contestants, LinkedList<Person> toskip, LinkedList<Person> newabove, boolean noRepeat ){
 
         //System.out.println("newA n: " + newabove);
         //System.out.println("con n: " + contestants);
@@ -70,8 +70,10 @@ public class Node {
         //System.out.println(grandChildren);
         //System.out.println("...");
         //System.out.println(ChildrenNodes);
-        for(int i =0; i<ChildrenNodes.size(); i++){
-            grandChildren.remove(ChildrenNodes.get(i).val);
+        if(noRepeat){
+            for(int i =0; i<ChildrenNodes.size(); i++){
+                grandChildren.remove(ChildrenNodes.get(i).val);
+            }
         }
         //System.out.println(grandChildren);
         //grandChildren.removeAll(toskip);
