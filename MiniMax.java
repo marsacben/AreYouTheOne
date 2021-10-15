@@ -15,8 +15,22 @@ public class MiniMax {
     int TBdepth = -1;
     Node TBNode;
     Node TBhead;
+    boolean isQueer;
 
     public MiniMax(LinkedList<Person> contestantsMale, LinkedList<Person> contestantsFemale) {
+        create(contestantsMale, contestantsFemale);
+        isQueer =false;
+    }
+
+    public MiniMax(LinkedList<Person> contestants) {
+        LinkedList<Person> contestants2 = new LinkedList<>();
+        contestants2.addAll(contestants);
+        create(contestants, contestants2);
+        this.isQueer = true;
+        ruleOutDuplicates();
+    }
+
+    private void create(LinkedList<Person> contestantsMale, LinkedList<Person> contestantsFemale) {
         this.contestants = contestantsMale;
         head = new Node(new LinkedList<>(),null,contestants, null, -1);
         on = head;
@@ -96,11 +110,6 @@ public class MiniMax {
             //available.addAll(contestants);
             //System.out.println("children " + on.children.toString());
             if(ruledOut.containsKey(on.depth+1)) {
-                //for (int i = 0; i < on.children.size(); i++) {
-                //    if (ruledOut.get(on.depth + 1).contains(on.children.get(i))) {
-                        //toskip.add(on.children.get(i));
-                 //       on.children.remove(i);
-                 //   }
                 toskip.addAll(ruledOut.get(on.depth + 1));
             }
 
@@ -121,15 +130,37 @@ public class MiniMax {
                     //System.out.println("ruledout "+ ruledOut.toString());
                     //System.out.println("data" + incompleateInfo.toString());
                     //System.out.println("depth -1:" + on.depth + "remove: " + toskip.toString());
-                    on = on.addChildNode(on.children, toskip, newabove);
+                    if(isQueer){
+                        Person newVal = queerNewChild(newabove);
+                        if(newVal==null){
+                            on = on.addChildNode(on.children, toskip, newabove);
+                        }else{
+                            on = on.addChildNode(on.children, toskip, newabove, newVal);
+                        }
+
+                    }else{
+                        on = on.addChildNode(on.children, toskip, newabove);
+                    }
                 }
             }
 
         }
     }
 
-    // returns a list of matches from the node you are on
+
     public Picks createSelection(){
+        Picks p;
+        if(isQueer){
+            p = createSelectionQueer();
+        }
+        else{
+            p = createSelectionStraight();
+        }
+        return  p;
+    }
+
+    // returns a list of matches from the node you are on
+    public Picks createSelectionStraight(){
         LinkedList<Person> selection = new LinkedList<>();
         selection.addAll(on.above);
         selection.add(on.val);
@@ -143,6 +174,30 @@ public class MiniMax {
         for (int i=0; i<toMatch.size(); i++){
             Match m = new Match(toMatch.get(i), selection.get(i));
             matches.add(m);
+        }
+        return new Picks(matches);
+    }
+
+    // returns a list of matches from the node you are on, removing duplicates
+    public Picks createSelectionQueer(){
+        LinkedList<Person> selection = new LinkedList<>();
+        selection.addAll(on.above);
+        selection.add(on.val);
+        selection.addAll(on.children);
+        if(toMatch.size() != selection.size()){
+            System.out.println("Contestants and contestants to match are nor the same size!" + toMatch.size() +" " + selection.size());
+            System.out.println(selection);
+        }
+        LinkedList<Match> matches = new LinkedList<>();
+        LinkedList<Person> in = new LinkedList<>();
+        selected = selection;
+        for (int i=0; i<toMatch.size(); i++){
+            if(!in.contains(toMatch.get(i))) {
+                Match m = new Match(toMatch.get(i), selection.get(i));
+                matches.add(m);
+                in.add(toMatch.get(i));
+                in.add(selection.get(i));
+            }
         }
         return new Picks(matches);
     }
@@ -210,7 +265,21 @@ public class MiniMax {
         }
     }
 
+    //for queer season make sure not person can be paired with themselves
+    public void ruleOutDuplicates(){
+        for(int i=0; i< toMatch.size(); i++){
+            setRuledOut(i, toMatch.get(i));
+        }
+    }
+
     public void setRuledOut(int depth, Person p){
+        setRuledOutHelper(depth, p);
+        if(isQueer){
+            setRuledOutHelper(toMatch.indexOf(p), contestants.get(depth));
+        }
+    }
+
+    public void setRuledOutHelper(int depth, Person p){
         LinkedList<Person> l = new LinkedList();
         if (ruledOut.containsKey(depth)) {
             l.addAll(ruledOut.get(depth));
@@ -308,4 +377,15 @@ public class MiniMax {
         return onChopped;
     }
 
+    //for queer season
+    //if p1 already matched with p2 then match p2 with p1
+    public Person queerNewChild(LinkedList<Person> newabove){
+        Person p = null;
+        for (int i = 0; i < newabove.size(); i++) {
+            if (toMatch.get(on.depth + 1).equals(newabove.get(i))) {
+                p = toMatch.get(i);
+            }
+        }
+        return p;
+    }
 }

@@ -33,12 +33,18 @@ public class Node {
     }
     public Node addChildNode(LinkedList<Person> grandChildren, LinkedList<Person> toskip, LinkedList<Person> newabove){
         //System.out.println("in new node depth:" +depth+", to pick" + grandChildren.toString());
-        Person newVal = grandChildren.pop();
+        Person newVal = grandChildren.getFirst();
+        return addChildNode(grandChildren, toskip, newabove, newVal);
+    }
+
+    public Node addChildNode(LinkedList<Person> grandChildren, LinkedList<Person> toskip, LinkedList<Person> newabove, Person val){
+        //System.out.println("in new node depth:" +depth+", to pick" + grandChildren.toString());
+        grandChildren.remove(val);
         grandChildren.addAll(toskip);
         for(int i =0; i<ChildrenNodes.size(); i++){
             grandChildren.add(ChildrenNodes.get(i).val);
         }
-        Node c = new Node(newabove,this, grandChildren, newVal, depth+1);
+        Node c = new Node(newabove,this, grandChildren, val, depth+1);
         this.ChildrenNodes.add(c);
         this.children.remove(c.val);
         //System.out.println("val n: " + c.val);
