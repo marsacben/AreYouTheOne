@@ -1,6 +1,11 @@
+import com.sun.management.GarbageCollectionNotificationInfo;
 import org.junit.Test;
 
 import java.util.LinkedList;
+
+//import org.apache.commons.collections4.iterators;
+//import com.google.common.collect.Lists;
+//package com.google.common.collect;
 
 import static org.junit.Assert.*;
 
@@ -603,6 +608,60 @@ public class TestSeason {
         //System.out.println(last.add(picks.getLast()).toSt);
         testCorrectPicks(10,ans,last);
     }
+    @Test
+    public void testResults(){
+        Results r = runSeason();
+        System.out.println(r.matches.toString());
+        System.out.println(r.picks.toString());
+    }
+    public Results runSeason(){
+        String[][] names = {{"F1","F2","F3", "F4", "F5","F6","F7", "F8", "F9", "F10"},
+                {"M1","M2","M3","M4", "M5","M6","M7","M8","M9","M10"}};
+        LinkedList<Integer> order = new LinkedList<>();
+        order.add(10);
+        order.add(9);
+        order.add(8);
+        order.add(7);
+        order.add(6);
+        order.add(5);
+        order.add(4);
+        order.add(3);
+        order.add(2);
+        order.add(1);
+        boolean[][] gender= {{false,false,false,false,false,false,false,false,false,false},
+                {true,true,true,true,true,true,true,true,true,true}};
+        //String[][] ans = {{"M10","M9","M8","M7", "M6","M5","M4","M3","M2","M1"}};
+        Season s = new Season(names, gender, order);
+        LinkedList<Person>[] contestants = s.getContestantsSplit();
+        //System.out.println("group1:" + contestants[0]);
+        //System.out.println("group2:" + contestants[1]);
+        MiniMax util = new MiniMax(contestants[0], contestants[1]);
+        LinkedList<Picks> picks = new LinkedList<>();
+        LinkedList<Match> matches = new LinkedList<>();
+        int beams =0;
+        int i=1;
+        while(beams != 10){
+            System.out.println("Round " + (i));
+            Match m = util.getTruthBooth();
+            matches.add(m);
+            boolean resp = s.truthBoth(m);
+            util.recordTruthBooth(resp);
+            System.out.println("TruthBooth: " + m.toString() + " ans: " + resp);
+            Picks p = util.getCeremony();
+            picks.add(p);
+            System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            System.out.println("------");
+            i++;
+        }
+        //LinkedList<Picks> last = new LinkedList<>();
+        //last.add(picks.getLast());
+        //System.out.println(last.add(picks.getLast()).toSt);
+        //testCorrectPicks(10,ans,last);
+        return new Results(picks, matches);
+    }
 
     @Test
     public void testHumanStraight(){
@@ -630,5 +689,61 @@ public class TestSeason {
             int numCorrect = s.ceremony(p);
             System.out.println("Ceremony: " +  p.toString() + "NumCorrect: " +  numCorrect);
         }
+    }
+
+    @Test
+    public void TrimAlgoPreformance(){
+        LinkedList<Integer> order = new LinkedList<>();
+        order.add(10);
+        order.add(9);
+        order.add(8);
+        order.add(7);
+        order.add(6);
+        order.add(5);
+        order.add(4);
+        order.add(3);
+        order.add(2);
+        order.add(1);
+        //PermutateArray pa=new PermutateArray();
+        //PermutationIterator(Collection<? extends E> coll)
+        //LinkedList<LinkedList<Integer>> permutations = order
+        System.out.println(runSeason(order));
+    }
+
+    public int runSeason(LinkedList<Integer> order){
+        int rounds = 0;
+        String[][] names = {{"F1","F2","F3", "F4", "F5","F6","F7", "F8", "F9", "F10"},
+                {"M1","M2","M3","M4", "M5","M6","M7","M8","M9","M10"}};
+        boolean[][] gender= {{false,false,false,false,false,false,false,false,false,false},
+                {true,true,true,true,true,true,true,true,true,true}};
+        String[][] ans = {{"M10","M9","M8","M7", "M6","M5","M4","M3","M2","M1"}};
+        Season s = new Season(names, gender, order);
+        LinkedList<Person>[] contestants = s.getContestantsSplit();
+        //System.out.println("group1:" + contestants[0]);
+        //System.out.println("group2:" + contestants[1]);
+        MiniMax util = new MiniMax(contestants[0], contestants[1]);
+        LinkedList<Picks> picks = new LinkedList<>();
+        int beams =0;
+        //int i=1;
+        while(beams != 10){
+            //System.out.println("Round " + (i));
+            Match m = util.getTruthBooth();
+            boolean resp = s.truthBoth(m);
+            util.recordTruthBooth(resp);
+            //System.out.println("TruthBooth: " + m.toString() + " ans: " + resp);
+            Picks p = util.getCeremony();
+            picks.add(p);
+            //System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            //System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            //System.out.println("------");
+            rounds++;
+        }
+        LinkedList<Picks> last = new LinkedList<>();
+        last.add(picks.getLast());
+        //System.out.println(last.add(picks.getLast()).toSt);
+        testCorrectPicks(10,ans,last);
+        return rounds;
     }
 }
