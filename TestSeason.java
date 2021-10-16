@@ -1,6 +1,11 @@
+import com.sun.management.GarbageCollectionNotificationInfo;
 import org.junit.Test;
 
 import java.util.LinkedList;
+
+//import org.apache.commons.collections4.iterators;
+//import com.google.common.collect.Lists;
+//package com.google.common.collect;
 
 import static org.junit.Assert.*;
 
@@ -190,7 +195,7 @@ public class TestSeason {
 
         System.out.println("group1:" + l1.toString());
         System.out.println("group2:" + l2.toString());
-        MiniMax miniMax = new MiniMax(l2,l1);
+        TreeTrim TreeTrim = new TreeTrim(l2,l1);
         String[][] names = {{"M1", "M2", "M3", "M4"},
                             {"M1", "M2", "M4", "M3"},
                             {"M1", "M3", "M2", "M4"},
@@ -198,14 +203,15 @@ public class TestSeason {
                             {"M1", "M4", "M2", "M3"},
                             {"M1", "M4", "M3", "M2"}};
         for(int i=0; i<6; i++){
-            if(miniMax.on == null){
+            if(TreeTrim.on == null){
                 System.out.println("on is null! 201");
             }
             else{
                 System.out.println("on is not null! 201");
             }
-            Picks p = miniMax.getCeremony();
-            if(miniMax.on != null){
+            Picks p = TreeTrim.getCeremony();
+            System.out.println("test" + p.toString());
+            if(TreeTrim.on != null){
                 System.out.println("on is not null! 205");
             }
             else{
@@ -214,13 +220,532 @@ public class TestSeason {
             System.out.println("i=" + i);
             for(int j=0; j<4; j++) {
 
-                Match m = p.getPairs()[i];
+                Match m = p.getPair(j);
                 Person person = m.getP2();
                 String n = person.getName();
+                System.out.println("///////////////////");
+                System.out.println("///////////////////");
+                System.out.println("calc: " + n + " input: " + names[i][j]);
+                System.out.println("///////////////////");
+                System.out.println("///////////////////");
                 assertEquals(n, names[i][j]);
             }
         }
 
+    }
+
+    @Test
+    public void testRecordCeremony(){
+        LinkedList<Person> l1 = new LinkedList<>();
+        Person F1 = new Person("F1");
+        Person F2 =new Person("F2");
+        Person F3 =new Person("F3");
+        Person F4 =new Person("F4");
+
+        l1.add(F1);
+        l1.add(F2);
+        l1.add(F3);
+        l1.add(F4);
+
+        LinkedList<Person> l2 = new LinkedList<>();
+        l2.add(new Person("M1"));
+        l2.add(new Person("M2"));
+        l2.add(new Person("M3"));
+        l2.add(new Person("M4"));
+
+        System.out.println("group1:" + l1.toString());
+        System.out.println("group2:" + l2.toString());
+        TreeTrim TreeTrim = new TreeTrim(l2,l1);
+        TreeTrim.selected = new LinkedList<>();
+        TreeTrim.selected.add(F1);
+        TreeTrim.selected.add(F2);
+        TreeTrim.selected.add(F3);
+        TreeTrim.selected.add(F4);
+        TreeTrim.recordCeremony(0);
+        LinkedList<Person> ans1 = new LinkedList<>();
+        LinkedList<Person> ans2 = new LinkedList<>();
+        LinkedList<Person> ans3 = new LinkedList<>();
+        LinkedList<Person> ans4 = new LinkedList<>();
+        ans1.add(F1);
+        ans2.add(F2);
+        ans3.add(F3);
+        ans4.add(F4);
+        assertEquals(TreeTrim.ruledOut.get(0), ans1);
+        assertEquals(TreeTrim.ruledOut.get(1), ans2);
+        assertEquals(TreeTrim.ruledOut.get(2), ans3);
+        assertEquals(TreeTrim.ruledOut.get(3), ans4);
+    }
+
+    @Test
+    public void testSkipInSeason(){
+        String[][] names = {{"F1","F2","F3", "F4"},
+                {"M1","M2","M3","M4"}};
+        LinkedList<Integer> order = new LinkedList<>();
+        order.add(3);
+        order.add(2);
+        order.add(4);
+        order.add(1);
+        boolean[][] gender= {{false,false,false,false},
+                {true,true,true,true}};
+        String[][] ans = {{"M1", "M2", "M3", "M4"},
+                {"M1", "M2", "M4", "M3"},
+                {"M1", "M3", "M2", "M4"},
+                {"M2", "M1", "M4", "M3"},
+                {"M2", "M4", "M1", "M3"},
+                {"M3", "M2", "M4", "M1"}};
+        Season s = new Season(names, gender, order);
+        LinkedList<Person>[] contestants = s.getContestantsSplit();
+        System.out.println("group1:" + contestants[0]);
+        System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
+        LinkedList<Picks> picks = new LinkedList<>();
+
+        for(int i=0; i<6; i++) {
+            Picks p = util.getCeremony();
+            //System.out.println("ruledOut: " + util.ruledOut.toString());
+            //System.out.println("data: " + util.incompleateInfo.toString());
+            //System.out.println("data depth: " + util.depthIndex.toString());
+            //System.out.println("data numunkown: " + util.numUnkown.toString());
+
+            picks.add(p);
+            System.out.println("Pick: " + p.toString());
+            int beams = s.ceremony(p);
+            System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            System.out.println("------");
+        }
+        testCorrectPicks(4,ans,picks);
+    }
+
+    @Test
+    public void teststraightTreeTraversal(){
+        String[][] names = {{"F1","F2","F3", "F4", "F5","F6","F7", "F8", "F9", "F10"},
+                {"M1","M2","M3","M4", "M5","M6","M7","M8","M9","M10"}};
+        LinkedList<Integer> order = new LinkedList<>();
+        order.add(10);
+        order.add(9);
+        order.add(8);
+        order.add(7);
+        order.add(6);
+        order.add(5);
+        order.add(4);
+        order.add(3);
+        order.add(2);
+        order.add(1);
+        boolean[][] gender= {{false,false,false,false,false,false,false,false,false,false},
+                {true,true,true,true,true,true,true,true,true,true}};
+        String[][] ans = {{"M10","M9","M8","M7", "M6","M5","M4","M3","M2","M1"}};
+        Season s = new Season(names, gender, order);
+        LinkedList<Person>[] contestants = s.getContestantsSplit();
+        System.out.println("group1:" + contestants[0]);
+        System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
+        LinkedList<Picks> picks = new LinkedList<>();
+        int beams =0;
+        int i=0;
+        while(beams != 10){
+            Picks p = util.getCeremony();
+            //System.out.println("ruledOut: " + util.ruledOut.toString());
+            //System.out.println("data: " + util.incompleateInfo.toString());
+            //System.out.println("data depth: " + util.depthIndex.toString());
+            //System.out.println("data numunkown: " + util.numUnkown.toString());
+
+            picks.add(p);
+            System.out.println("round " + i);
+            System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            System.out.println("------");
+            i++;
+        }
+        LinkedList<Picks> last = new LinkedList<>();
+        last.add(picks.getLast());
+        //System.out.println(last.add(picks.getLast()).toSt);
+        testCorrectPicks(10,ans,last);
+    }
+
+    public void testCorrectPicks(int numPairs, String[][] ans, LinkedList<Picks> picks){
+        for(int i=0; i<picks.size(); i++) {
+            Picks p = picks.get(i);
+            for (int j = 0; j < numPairs; j++) {
+                Match m = p.getPair(j);
+                Person person = m.getP2();
+                String n = person.getName();
+                assertEquals(n, ans[i][j]);
+            }
+        }
+    }
+    @Test
+    public void testSkip(){
+        /*String[][] names = {{"F1","F2","F3", "F4"},
+                {"M1","M2","M3","M4"}};
+        boolean[][] gender= {{false,false,false,false},
+                {true,true,true,true}};
+        Season s = new Season(names, gender);
+        LinkedList<Person>[] contestants = s.getContestantsSplit();
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);*/
+        LinkedList<Person> l1 = new LinkedList<>();
+        Person F1 = new Person("F1");
+        Person F2 =new Person("F2");
+        Person F3 =new Person("F3");
+        Person F4 =new Person("F4");
+
+        l1.add(F1);
+        l1.add(F2);
+        l1.add(F3);
+        l1.add(F4);
+
+        LinkedList<Person> l2 = new LinkedList<>();
+        l2.add(new Person("M1"));
+        l2.add(new Person("M2"));
+        l2.add(new Person("M3"));
+        l2.add(new Person("M4"));
+        System.out.println("group1:" + l1.toString());
+        System.out.println("group2:" + l2.toString());
+        TreeTrim util = new TreeTrim(l2,l1);
+        String[][] ans = {{"M1", "M2", "M3", "M4"},
+                {"M2", "M1", "M4", "M3"}};
+        LinkedList<Picks> picks = new LinkedList<>();
+
+        Picks p = util.getCeremony();
+        picks.add(p);
+        System.out.println("Pick: " + p.toString());
+        //int beams = s.ceremony(p);
+        //System.out.println("beams: " + beams);
+        util.recordCeremony(0);
+        System.out.println("------");
+
+        Picks p2 = util.getCeremony();
+        picks.add(p2);
+        System.out.println("Pick: " + p2.toString());
+        //int beams2 = s.ceremony(p2);
+        //System.out.println("beams: " + beams2);
+        util.recordCeremony(1); //correct 3241
+
+        System.out.println("------");
+        System.out.println("------");
+        System.out.println("------");
+        System.out.println("p1: " + p.toString());
+        System.out.println("p2: " + p2.toString());
+        testCorrectPicks(2,ans,picks);
+    }
+
+    @Test
+    public void tbTraversal(){
+        String[][] names = {{"F1","F2","F3", "F4"},
+                {"M1","M2","M3","M4"}};
+        LinkedList<Integer> order = new LinkedList<>();
+        order.add(3);
+        order.add(2);
+        order.add(4);
+        order.add(1);
+        boolean[][] gender= {{false,false,false,false},
+                {true,true,true,true}};
+        String[][] ans = {{"M1", "M2", "M3", "M4"},
+                {"M1", "M2", "M4", "M3"},
+                {"M1", "M3", "M2", "M4"},
+                {"M2", "M1", "M4", "M3"},
+                {"M2", "M4", "M1", "M3"},
+                {"M3", "M2", "M4", "M1"}};
+        Season s = new Season(names, gender, order);
+        LinkedList<Person>[] contestants = s.getContestantsSplit();
+        System.out.println("group1:" + contestants[0]);
+        System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
+        Person F1 = new Person("F1");
+        Person F2 =new Person("F2");
+        Person F3 =new Person("F3");
+        Person F4 =new Person("F4");
+        Person M1 = new Person("M1");
+        Person M2 =new Person("M2");
+        Person M3 =new Person("M3");
+        Person M4 =new Person("M4");
+        Match[] matches = {new Match(F1, M1), new Match(F1, M2), new Match(F1, M3), new Match(F2, M1), new Match(F2, M2), new Match(F3, M1)};
+        for(int i=0; i<6; i++){
+            Match m = util.getTruthBooth();
+            boolean is = s.truthBoth(m);
+            System.out.println(m.toString() + " ans= " + is);
+            util.recordTruthBooth(is);
+            assertEquals(m, matches[i]);
+        }
+    }
+
+    @Test
+    public void test4WithTrimmingAlgo(){
+        String[][] names = {{"F1","F2","F3", "F4"},
+                {"M1","M2","M3","M4"}};
+        LinkedList<Integer> order = new LinkedList<>();
+        order.add(3);
+        order.add(2);
+        order.add(4);
+        order.add(1);
+        boolean[][] gender= {{false,false,false,false},
+                {true,true,true,true}};
+        String[][] ans = {{"M2", "M1", "M3", "M4"},
+                {"M3", "M2", "M4", "M1"}};
+        Season s = new Season(names, gender, order);
+        LinkedList<Person>[] contestants = s.getContestantsSplit();
+        System.out.println("group1:" + contestants[0]);
+        System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
+        LinkedList<Picks> picks = new LinkedList<>();
+        Match[] matches = {new Match(new Person("F1"), new Person("M1")), new Match(new Person("F1"), new Person("M3"))};
+        int beams = 0;
+        int i =0;
+        while(beams<4) {
+            System.out.println("Round " + (i +1));
+            Match m = util.getTruthBooth();
+            assertEquals(m, matches[i]);
+            boolean resp = s.truthBoth(m);
+            util.recordTruthBooth(resp);
+            System.out.println("TruthBooth: " + m.toString() + " ans: " + resp);
+            Picks p = util.getCeremony();
+            //System.out.println("ruledOut: " + util.ruledOut.toString());
+            //System.out.println("data: " + util.incompleateInfo.toString());
+            //System.out.println("data depth: " + util.depthIndex.toString());
+            //System.out.println("data numunkown: " + util.numUnkown.toString());
+            picks.add(p);
+            System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            System.out.println("------");
+            i++;
+        }
+        testCorrectPicks(4,ans,picks);
+    }
+    @Test
+    public void test4WithTrimmingAlgo2(){
+        String[][] names = {{"F1","F2","F3", "F4"},
+                {"M1","M2","M3","M4"}};
+        LinkedList<Integer> order = new LinkedList<>();
+        order.add(4);
+        order.add(3);
+        order.add(2);
+        order.add(1);
+        boolean[][] gender= {{false,false,false,false},
+                {true,true,true,true}};
+        String[][] ans = {{"M2", "M1", "M3", "M4"},
+                {"M4", "M2", "M1", "M3"},
+                {"M4", "M3", "M1", "M2"},
+                {"M4", "M3", "M2", "M1"}};
+        Season s = new Season(names, gender, order);
+        LinkedList<Person>[] contestants = s.getContestantsSplit();
+        System.out.println("group1:" + contestants[0]);
+        System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
+        LinkedList<Picks> picks = new LinkedList<>();
+        Match[] matches = {new Match(new Person("F1"), new Person("M1")), new Match(new Person("F1"), new Person("M3")), new Match(new Person("F2"), new Person("M2")), new Match(new Person("F3"), new Person("M1"))};
+        int beams = 0;
+        int i =0;
+        while(beams<4) {
+            System.out.println("Round " + (i +1));
+            Match m = util.getTruthBooth();
+            assertEquals(m, matches[i]);
+            boolean resp = s.truthBoth(m);
+            util.recordTruthBooth(resp);
+            System.out.println("TruthBooth: " + m.toString() + " ans: " + resp);
+            Picks p = util.getCeremony();
+            //System.out.println("ruledOut: " + util.ruledOut.toString());
+            //System.out.println("data: " + util.incompleateInfo.toString());
+            //System.out.println("data depth: " + util.depthIndex.toString());
+            //System.out.println("data numunkown: " + util.numUnkown.toString());
+            picks.add(p);
+            System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            System.out.println("------");
+            i++;
+        }
+        testCorrectPicks(4,ans,picks);
+    }
+
+    @Test
+    public void test4WithTrimmingAlgoQueer(){
+        String[][] names = {{"F1","F2","F3", "F4"},
+                {"M1","M2","M3","M4"}};
+        LinkedList<Integer> order = new LinkedList<>();
+        order.add(4);
+        order.add(3);
+        order.add(2);
+        order.add(1);
+        boolean[][] gender= {{false,false,false,false},
+                {true,true,true,true}};
+        String[][] ans = {{"M2", "M1", "M3", "M4"},
+                {"M4", "M2", "M1", "M3"},
+                {"M4", "M3", "M1", "M2"},
+                {"M4", "M3", "M2", "M1"}};
+        Season s = new Season(names);
+        //LinkedList<Person>[] contestants = s.getContestantsSplit();
+        LinkedList<Person> contestants = s.getContestants();
+        System.out.println("group1:" + contestants);
+        //System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants);
+        LinkedList<Picks> picks = new LinkedList<>();
+        Match[] matches = {new Match(new Person("F1"), new Person("M1")), new Match(new Person("F1"), new Person("M3")), new Match(new Person("F2"), new Person("M2")), new Match(new Person("F3"), new Person("M1"))};
+        int beams = 0;
+        int i =0;
+        while(beams<4) {
+            System.out.println("Round " + (i +1));
+            Match m = util.getTruthBooth();
+            //assertEquals(m, matches[i]);
+            boolean resp = s.truthBoth(m);
+            util.recordTruthBooth(resp);
+            System.out.println("TruthBooth: " + m.toString() + " ans: " + resp);
+            Picks p = util.getCeremony();
+            //System.out.println("ruledOut: " + util.ruledOut.toString());
+            //System.out.println("data: " + util.incompleateInfo.toString());
+            //System.out.println("data depth: " + util.depthIndex.toString());
+            //System.out.println("data numunkown: " + util.numUnkown.toString());
+            picks.add(p);
+            System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            System.out.println("------");
+            i++;
+        }
+        //testCorrectPicks(4,ans,picks);
+    }
+
+    @Test
+    public void test5WithTrimmingAlgoQueer(){
+        String[][] names = {{"F1","F2","F3", "F4", "F5"},
+                {"M1","M2","M3","M4", "M5"}};
+        Season s = new Season(names);
+        //LinkedList<Person>[] contestants = s.getContestantsSplit();
+        LinkedList<Person> contestants = s.getContestants();
+        System.out.println("group1:" + contestants);
+        //System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants);
+        LinkedList<Picks> picks = new LinkedList<>();
+        int beams = 0;
+        int i =0;
+        while(beams<5) {
+            System.out.println("Round " + (i +1));
+            Match m = util.getTruthBooth();
+            //assertEquals(m, matches[i]);
+            boolean resp = s.truthBoth(m);
+            util.recordTruthBooth(resp);
+            System.out.println("TruthBooth: " + m.toString() + " ans: " + resp);
+            Picks p = util.getCeremony();
+            //System.out.println("ruledOut: " + util.ruledOut.toString());
+            //System.out.println("data: " + util.incompleateInfo.toString());
+            //System.out.println("data depth: " + util.depthIndex.toString());
+            //System.out.println("data numunkown: " + util.numUnkown.toString());
+            picks.add(p);
+            System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            System.out.println("------");
+            i++;
+        }
+        //testCorrectPicks(4,ans,picks);
+    }
+
+    @Test
+    public void teststraightTrimAlgo(){
+        String[][] names = {{"F1","F2","F3", "F4", "F5","F6","F7", "F8", "F9", "F10"},
+                {"M1","M2","M3","M4", "M5","M6","M7","M8","M9","M10"}};
+        LinkedList<Integer> order = new LinkedList<>();
+        order.add(10);
+        order.add(9);
+        order.add(8);
+        order.add(7);
+        order.add(6);
+        order.add(5);
+        order.add(4);
+        order.add(3);
+        order.add(2);
+        order.add(1);
+        boolean[][] gender= {{false,false,false,false,false,false,false,false,false,false},
+                {true,true,true,true,true,true,true,true,true,true}};
+        String[][] ans = {{"M10","M9","M8","M7", "M6","M5","M4","M3","M2","M1"}};
+        Season s = new Season(names, gender, order);
+        LinkedList<Person>[] contestants = s.getContestantsSplit();
+        System.out.println("group1:" + contestants[0]);
+        System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
+        LinkedList<Picks> picks = new LinkedList<>();
+        int beams =0;
+        int i=1;
+        while(beams != 10){
+            System.out.println("Round " + (i));
+            Match m = util.getTruthBooth();
+            System.out.println("TruthBooth: " + m.toString());
+            boolean resp = s.truthBoth(m);
+            util.recordTruthBooth(resp);
+            System.out.println("TruthBooth: " + m.toString() + " ans: " + resp);
+            Picks p = util.getCeremony();
+            picks.add(p);
+            System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            System.out.println("------");
+            i++;
+        }
+        LinkedList<Picks> last = new LinkedList<>();
+        last.add(picks.getLast());
+        //System.out.println(last.add(picks.getLast()).toSt);
+        testCorrectPicks(10,ans,last);
+    }
+    @Test
+    public void testResults(){
+        Results r = runSeason();
+        System.out.println(r.matches.toString());
+        System.out.println(r.picks.toString());
+    }
+    public Results runSeason(){
+        String[][] names = {{"F1","F2","F3", "F4", "F5","F6","F7", "F8", "F9", "F10"},
+                {"M1","M2","M3","M4", "M5","M6","M7","M8","M9","M10"}};
+        LinkedList<Integer> order = new LinkedList<>();
+        order.add(10);
+        order.add(9);
+        order.add(8);
+        order.add(7);
+        order.add(6);
+        order.add(5);
+        order.add(4);
+        order.add(3);
+        order.add(2);
+        order.add(1);
+        boolean[][] gender= {{false,false,false,false,false,false,false,false,false,false},
+                {true,true,true,true,true,true,true,true,true,true}};
+        //String[][] ans = {{"M10","M9","M8","M7", "M6","M5","M4","M3","M2","M1"}};
+        Season s = new Season(names, gender, order);
+        LinkedList<Person>[] contestants = s.getContestantsSplit();
+        //System.out.println("group1:" + contestants[0]);
+        //System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
+        LinkedList<Picks> picks = new LinkedList<>();
+        LinkedList<Match> matches = new LinkedList<>();
+        int beams =0;
+        int i=1;
+        while(beams != 10){
+            System.out.println("Round " + (i));
+            Match m = util.getTruthBooth();
+            matches.add(m);
+            boolean resp = s.truthBoth(m);
+            util.recordTruthBooth(resp);
+            System.out.println("TruthBooth: " + m.toString() + " ans: " + resp);
+            Picks p = util.getCeremony();
+            picks.add(p);
+            System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            System.out.println("------");
+            i++;
+        }
+        //LinkedList<Picks> last = new LinkedList<>();
+        //last.add(picks.getLast());
+        //System.out.println(last.add(picks.getLast()).toSt);
+        //testCorrectPicks(10,ans,last);
+        return new Results(picks, matches);
     }
 
     @Test
@@ -249,5 +774,122 @@ public class TestSeason {
             int numCorrect = s.ceremony(p);
             System.out.println("Ceremony: " +  p.toString() + "NumCorrect: " +  numCorrect);
         }
+    }
+
+    ///////////////////////////////////////
+    //Testing preformance of algorithm treeTrimm
+    ////////////////////////////////////////////S
+    @Test
+    public void TrimAlgoPreformanceStraight(){
+        int sum =0;
+        int i=0;
+        int max = 0;
+        LinkedList<Integer> r = new LinkedList<>();
+        while(i<1000){
+            int round = runSeasonStraight();
+            r.add(round);
+            sum = sum + round;
+            if(round > 0){
+                max = round;
+            }
+            i++;
+        }
+        System.out.println("sum= " + sum);
+        System.out.println("max= " + max);
+        System.out.println(r.toString());
+
+    }
+
+    @Test
+    public void TrimAlgoPreformanceQueer(){
+        int sum =0;
+        int i=0;
+        int max = 0;
+        LinkedList<Integer> r = new LinkedList<>();
+        while(i<1000){
+            int round = runSeasonQueer();
+            r.add(round);
+            sum = sum + round;
+            if(round > 0){
+                max = round;
+            }
+            i++;
+        }
+        System.out.println("sum= " + sum);
+        System.out.println("max= " + max);
+        System.out.println(r.toString());
+
+    }
+
+    public int runSeasonStraight(){
+        int rounds = 0;
+        String[][] names = {{"F1","F2","F3", "F4", "F5","F6","F7", "F8", "F9", "F10"},
+                {"M1","M2","M3","M4", "M5","M6","M7","M8","M9","M10"}};
+        boolean[][] gender= {{false,false,false,false,false,false,false,false,false,false},
+                {true,true,true,true,true,true,true,true,true,true}};
+        //String[][] ans = {{"M10","M9","M8","M7", "M6","M5","M4","M3","M2","M1"}};
+        Season s = new Season(names, gender);
+        LinkedList<Person>[] contestants = s.getContestantsSplit();
+        //System.out.println("group1:" + contestants[0]);
+        //System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
+        LinkedList<Picks> picks = new LinkedList<>();
+        int beams =0;
+        //int i=1;
+        while(beams != 10){
+            //System.out.println("Round " + (i));
+            Match m = util.getTruthBooth();
+            boolean resp = s.truthBoth(m);
+            util.recordTruthBooth(resp);
+            //System.out.println("TruthBooth: " + m.toString() + " ans: " + resp);
+            Picks p = util.getCeremony();
+            picks.add(p);
+            //System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            //System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            //System.out.println("------");
+            rounds++;
+        }
+        LinkedList<Picks> last = new LinkedList<>();
+        last.add(picks.getLast());
+        //System.out.println(last.add(picks.getLast()).toSt);
+        //testCorrectPicks(10,ans,last);
+        return rounds;
+    }
+
+    public int runSeasonQueer(){
+        int rounds = 0;
+        String[][] names = {{"F1","F2","F3", "F4", "F5","F6","F7", "F8"},
+                {"M1","M2","M3","M4", "M5","M6","M7","M8"}};
+        //String[][] ans = {{"M10","M9","M8","M7", "M6","M5","M4","M3","M2","M1"}};
+        Season s = new Season(names);
+        LinkedList<Person> contestants = s.getContestants();
+        //System.out.println("group1:" + contestants[0]);
+        //System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants);
+        LinkedList<Picks> picks = new LinkedList<>();
+        int beams =0;
+        //int i=1;
+        while(beams != 8){
+            //System.out.println("Round " + (i));
+            Match m = util.getTruthBooth();
+            boolean resp = s.truthBoth(m);
+            util.recordTruthBooth(resp);
+            //System.out.println("TruthBooth: " + m.toString() + " ans: " + resp);
+            Picks p = util.getCeremony();
+            picks.add(p);
+            //System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            //System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            //System.out.println("------");
+            rounds++;
+        }
+        //LinkedList<Picks> last = new LinkedList<>();
+        //last.add(picks.getLast());
+        //System.out.println(last.add(picks.getLast()).toSt);
+        //testCorrectPicks(10,ans,last);
+        return rounds;
     }
 }

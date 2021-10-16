@@ -1,6 +1,6 @@
 public class HumanInput {
 
-    public inputTruthBoth(){
+    public void inputTruthBoth(){
 
     }
 }

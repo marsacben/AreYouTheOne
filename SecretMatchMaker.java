@@ -50,6 +50,25 @@ public class SecretMatchMaker {
         Collections.shuffle(contestants);
         return contestants;
     }
+    public LinkedList<Person> makeCastNoShuffle(String[][] names, boolean[][] gender, LinkedList<Integer> order){
+        LinkedList<Person> contestants = new LinkedList<>();
+        LinkedList<Person> contestants1 = new LinkedList<>();
+        LinkedList<Person> contestants2 = new LinkedList<>();
+        for(int i=0; i< names[0].length; i++){
+            Person a = new Person(names[0][i], gender[0][i]);
+            Person b = new Person(names[1][i], gender[1][i]);
+            contestants1.add(a);
+            contestants2.add(b);
+        }
+        contestants.addAll(contestants1);
+        contestants.addAll(contestants2);
+        for(int i=0; i< contestants1.size(); i++){
+           // System.out.println("i= " +i+"  m= "+ contestants1.get(i).getName() + "  f= " + contestants2.get(order.get(i)-1).getName() + "  order="+ order.get(i));
+            perfectMatches.put(contestants1.get(i), contestants2.get(order.get(i)-1));
+        }
+        return contestants;
+    }
+
 
     public LinkedList<Person> makeCast(String[][] names){
         LinkedList<Person> contestants = new LinkedList<>();
