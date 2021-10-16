@@ -69,6 +69,7 @@ public class SecretMatchMaker {
         return contestants;
     }
 
+
     public LinkedList<Person> makeCast(String[][] names){
         LinkedList<Person> contestants = new LinkedList<>();
         for(int i=0; i< names[0].length; i++){

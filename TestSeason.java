@@ -195,7 +195,7 @@ public class TestSeason {
 
         System.out.println("group1:" + l1.toString());
         System.out.println("group2:" + l2.toString());
-        MiniMax miniMax = new MiniMax(l2,l1);
+        TreeTrim TreeTrim = new TreeTrim(l2,l1);
         String[][] names = {{"M1", "M2", "M3", "M4"},
                             {"M1", "M2", "M4", "M3"},
                             {"M1", "M3", "M2", "M4"},
@@ -203,15 +203,15 @@ public class TestSeason {
                             {"M1", "M4", "M2", "M3"},
                             {"M1", "M4", "M3", "M2"}};
         for(int i=0; i<6; i++){
-            if(miniMax.on == null){
+            if(TreeTrim.on == null){
                 System.out.println("on is null! 201");
             }
             else{
                 System.out.println("on is not null! 201");
             }
-            Picks p = miniMax.getCeremony();
+            Picks p = TreeTrim.getCeremony();
             System.out.println("test" + p.toString());
-            if(miniMax.on != null){
+            if(TreeTrim.on != null){
                 System.out.println("on is not null! 205");
             }
             else{
@@ -255,13 +255,13 @@ public class TestSeason {
 
         System.out.println("group1:" + l1.toString());
         System.out.println("group2:" + l2.toString());
-        MiniMax miniMax = new MiniMax(l2,l1);
-        miniMax.selected = new LinkedList<>();
-        miniMax.selected.add(F1);
-        miniMax.selected.add(F2);
-        miniMax.selected.add(F3);
-        miniMax.selected.add(F4);
-        miniMax.recordCeremony(0);
+        TreeTrim TreeTrim = new TreeTrim(l2,l1);
+        TreeTrim.selected = new LinkedList<>();
+        TreeTrim.selected.add(F1);
+        TreeTrim.selected.add(F2);
+        TreeTrim.selected.add(F3);
+        TreeTrim.selected.add(F4);
+        TreeTrim.recordCeremony(0);
         LinkedList<Person> ans1 = new LinkedList<>();
         LinkedList<Person> ans2 = new LinkedList<>();
         LinkedList<Person> ans3 = new LinkedList<>();
@@ -270,10 +270,10 @@ public class TestSeason {
         ans2.add(F2);
         ans3.add(F3);
         ans4.add(F4);
-        assertEquals(miniMax.ruledOut.get(0), ans1);
-        assertEquals(miniMax.ruledOut.get(1), ans2);
-        assertEquals(miniMax.ruledOut.get(2), ans3);
-        assertEquals(miniMax.ruledOut.get(3), ans4);
+        assertEquals(TreeTrim.ruledOut.get(0), ans1);
+        assertEquals(TreeTrim.ruledOut.get(1), ans2);
+        assertEquals(TreeTrim.ruledOut.get(2), ans3);
+        assertEquals(TreeTrim.ruledOut.get(3), ans4);
     }
 
     @Test
@@ -297,7 +297,7 @@ public class TestSeason {
         LinkedList<Person>[] contestants = s.getContestantsSplit();
         System.out.println("group1:" + contestants[0]);
         System.out.println("group2:" + contestants[1]);
-        MiniMax util = new MiniMax(contestants[0], contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
         LinkedList<Picks> picks = new LinkedList<>();
 
         for(int i=0; i<6; i++) {
@@ -339,7 +339,7 @@ public class TestSeason {
         LinkedList<Person>[] contestants = s.getContestantsSplit();
         System.out.println("group1:" + contestants[0]);
         System.out.println("group2:" + contestants[1]);
-        MiniMax util = new MiniMax(contestants[0], contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
         LinkedList<Picks> picks = new LinkedList<>();
         int beams =0;
         int i=0;
@@ -384,7 +384,7 @@ public class TestSeason {
                 {true,true,true,true}};
         Season s = new Season(names, gender);
         LinkedList<Person>[] contestants = s.getContestantsSplit();
-        MiniMax util = new MiniMax(contestants[0], contestants[1]);*/
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);*/
         LinkedList<Person> l1 = new LinkedList<>();
         Person F1 = new Person("F1");
         Person F2 =new Person("F2");
@@ -403,7 +403,7 @@ public class TestSeason {
         l2.add(new Person("M4"));
         System.out.println("group1:" + l1.toString());
         System.out.println("group2:" + l2.toString());
-        MiniMax util = new MiniMax(l2,l1);
+        TreeTrim util = new TreeTrim(l2,l1);
         String[][] ans = {{"M1", "M2", "M3", "M4"},
                 {"M2", "M1", "M4", "M3"}};
         LinkedList<Picks> picks = new LinkedList<>();
@@ -452,7 +452,7 @@ public class TestSeason {
         LinkedList<Person>[] contestants = s.getContestantsSplit();
         System.out.println("group1:" + contestants[0]);
         System.out.println("group2:" + contestants[1]);
-        MiniMax util = new MiniMax(contestants[0], contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
         Person F1 = new Person("F1");
         Person F2 =new Person("F2");
         Person F3 =new Person("F3");
@@ -488,7 +488,7 @@ public class TestSeason {
         LinkedList<Person>[] contestants = s.getContestantsSplit();
         System.out.println("group1:" + contestants[0]);
         System.out.println("group2:" + contestants[1]);
-        MiniMax util = new MiniMax(contestants[0], contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
         LinkedList<Picks> picks = new LinkedList<>();
         Match[] matches = {new Match(new Person("F1"), new Person("M1")), new Match(new Person("F1"), new Person("M3"))};
         int beams = 0;
@@ -534,7 +534,7 @@ public class TestSeason {
         LinkedList<Person>[] contestants = s.getContestantsSplit();
         System.out.println("group1:" + contestants[0]);
         System.out.println("group2:" + contestants[1]);
-        MiniMax util = new MiniMax(contestants[0], contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
         LinkedList<Picks> picks = new LinkedList<>();
         Match[] matches = {new Match(new Person("F1"), new Person("M1")), new Match(new Person("F1"), new Person("M3")), new Match(new Person("F2"), new Person("M2")), new Match(new Person("F3"), new Person("M1"))};
         int beams = 0;
@@ -582,7 +582,7 @@ public class TestSeason {
         LinkedList<Person> contestants = s.getContestants();
         System.out.println("group1:" + contestants);
         //System.out.println("group2:" + contestants[1]);
-        MiniMax util = new MiniMax(contestants);
+        TreeTrim util = new TreeTrim(contestants);
         LinkedList<Picks> picks = new LinkedList<>();
         Match[] matches = {new Match(new Person("F1"), new Person("M1")), new Match(new Person("F1"), new Person("M3")), new Match(new Person("F2"), new Person("M2")), new Match(new Person("F3"), new Person("M1"))};
         int beams = 0;
@@ -611,19 +611,19 @@ public class TestSeason {
     }
 
     @Test
-    public void test16WithTrimmingAlgoQueer(){
-        String[][] names = {{"F1","F2","F3", "F4", "F5","F6","F7", "F8"},
-                {"M1","M2","M3","M4", "M5","M6","M7","M8"}};
+    public void test5WithTrimmingAlgoQueer(){
+        String[][] names = {{"F1","F2","F3", "F4", "F5"},
+                {"M1","M2","M3","M4", "M5"}};
         Season s = new Season(names);
         //LinkedList<Person>[] contestants = s.getContestantsSplit();
         LinkedList<Person> contestants = s.getContestants();
         System.out.println("group1:" + contestants);
         //System.out.println("group2:" + contestants[1]);
-        MiniMax util = new MiniMax(contestants);
+        TreeTrim util = new TreeTrim(contestants);
         LinkedList<Picks> picks = new LinkedList<>();
         int beams = 0;
         int i =0;
-        while(beams<4) {
+        while(beams<5) {
             System.out.println("Round " + (i +1));
             Match m = util.getTruthBooth();
             //assertEquals(m, matches[i]);
@@ -668,7 +668,7 @@ public class TestSeason {
         LinkedList<Person>[] contestants = s.getContestantsSplit();
         System.out.println("group1:" + contestants[0]);
         System.out.println("group2:" + contestants[1]);
-        MiniMax util = new MiniMax(contestants[0], contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
         LinkedList<Picks> picks = new LinkedList<>();
         int beams =0;
         int i=1;
@@ -720,7 +720,7 @@ public class TestSeason {
         LinkedList<Person>[] contestants = s.getContestantsSplit();
         //System.out.println("group1:" + contestants[0]);
         //System.out.println("group2:" + contestants[1]);
-        MiniMax util = new MiniMax(contestants[0], contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
         LinkedList<Picks> picks = new LinkedList<>();
         LinkedList<Match> matches = new LinkedList<>();
         int beams =0;
@@ -776,37 +776,63 @@ public class TestSeason {
         }
     }
 
+    ///////////////////////////////////////
+    //Testing preformance of algorithm treeTrimm
+    ////////////////////////////////////////////S
     @Test
-    public void TrimAlgoPreformance(){
-        LinkedList<Integer> order = new LinkedList<>();
-        order.add(10);
-        order.add(9);
-        order.add(8);
-        order.add(7);
-        order.add(6);
-        order.add(5);
-        order.add(4);
-        order.add(3);
-        order.add(2);
-        order.add(1);
-        //PermutateArray pa=new PermutateArray();
-        //PermutationIterator(Collection<? extends E> coll)
-        //LinkedList<LinkedList<Integer>> permutations = order
-        System.out.println(runSeason(order));
+    public void TrimAlgoPreformanceStraight(){
+        int sum =0;
+        int i=0;
+        int max = 0;
+        LinkedList<Integer> r = new LinkedList<>();
+        while(i<1000){
+            int round = runSeasonStraight();
+            r.add(round);
+            sum = sum + round;
+            if(round > 0){
+                max = round;
+            }
+            i++;
+        }
+        System.out.println("sum= " + sum);
+        System.out.println("max= " + max);
+        System.out.println(r.toString());
+
     }
 
-    public int runSeason(LinkedList<Integer> order){
+    @Test
+    public void TrimAlgoPreformanceQueer(){
+        int sum =0;
+        int i=0;
+        int max = 0;
+        LinkedList<Integer> r = new LinkedList<>();
+        while(i<1000){
+            int round = runSeasonQueer();
+            r.add(round);
+            sum = sum + round;
+            if(round > 0){
+                max = round;
+            }
+            i++;
+        }
+        System.out.println("sum= " + sum);
+        System.out.println("max= " + max);
+        System.out.println(r.toString());
+
+    }
+
+    public int runSeasonStraight(){
         int rounds = 0;
         String[][] names = {{"F1","F2","F3", "F4", "F5","F6","F7", "F8", "F9", "F10"},
                 {"M1","M2","M3","M4", "M5","M6","M7","M8","M9","M10"}};
         boolean[][] gender= {{false,false,false,false,false,false,false,false,false,false},
                 {true,true,true,true,true,true,true,true,true,true}};
-        String[][] ans = {{"M10","M9","M8","M7", "M6","M5","M4","M3","M2","M1"}};
-        Season s = new Season(names, gender, order);
+        //String[][] ans = {{"M10","M9","M8","M7", "M6","M5","M4","M3","M2","M1"}};
+        Season s = new Season(names, gender);
         LinkedList<Person>[] contestants = s.getContestantsSplit();
         //System.out.println("group1:" + contestants[0]);
         //System.out.println("group2:" + contestants[1]);
-        MiniMax util = new MiniMax(contestants[0], contestants[1]);
+        TreeTrim util = new TreeTrim(contestants[0], contestants[1]);
         LinkedList<Picks> picks = new LinkedList<>();
         int beams =0;
         //int i=1;
@@ -828,7 +854,42 @@ public class TestSeason {
         LinkedList<Picks> last = new LinkedList<>();
         last.add(picks.getLast());
         //System.out.println(last.add(picks.getLast()).toSt);
-        testCorrectPicks(10,ans,last);
+        //testCorrectPicks(10,ans,last);
+        return rounds;
+    }
+
+    public int runSeasonQueer(){
+        int rounds = 0;
+        String[][] names = {{"F1","F2","F3", "F4", "F5","F6","F7", "F8"},
+                {"M1","M2","M3","M4", "M5","M6","M7","M8"}};
+        //String[][] ans = {{"M10","M9","M8","M7", "M6","M5","M4","M3","M2","M1"}};
+        Season s = new Season(names);
+        LinkedList<Person> contestants = s.getContestants();
+        //System.out.println("group1:" + contestants[0]);
+        //System.out.println("group2:" + contestants[1]);
+        TreeTrim util = new TreeTrim(contestants);
+        LinkedList<Picks> picks = new LinkedList<>();
+        int beams =0;
+        //int i=1;
+        while(beams != 8){
+            //System.out.println("Round " + (i));
+            Match m = util.getTruthBooth();
+            boolean resp = s.truthBoth(m);
+            util.recordTruthBooth(resp);
+            //System.out.println("TruthBooth: " + m.toString() + " ans: " + resp);
+            Picks p = util.getCeremony();
+            picks.add(p);
+            //System.out.println("Pick: " + p.toString());
+            beams = s.ceremony(p);
+            //System.out.println("beams: " + beams);
+            util.recordCeremony(beams);
+            //System.out.println("------");
+            rounds++;
+        }
+        //LinkedList<Picks> last = new LinkedList<>();
+        //last.add(picks.getLast());
+        //System.out.println(last.add(picks.getLast()).toSt);
+        //testCorrectPicks(10,ans,last);
         return rounds;
     }
 }

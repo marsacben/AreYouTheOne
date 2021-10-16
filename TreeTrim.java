@@ -1,7 +1,12 @@
 import java.util.Hashtable;
 import java.util.LinkedList;
 
-public class MiniMax {
+
+//////////////
+//This is the treeTrim algorithm
+///////////////
+////////////////
+public class TreeTrim {
     Node head;
     Node on;
     LinkedList<Person> contestants;
@@ -17,17 +22,17 @@ public class MiniMax {
     Node TBhead;
     boolean isQueer;
 
-    public MiniMax(LinkedList<Person> contestantsMale, LinkedList<Person> contestantsFemale) {
+    public TreeTrim(LinkedList<Person> contestantsMale, LinkedList<Person> contestantsFemale) {
         create(contestantsMale, contestantsFemale);
         isQueer =false;
     }
 
-    public MiniMax(LinkedList<Person> contestants) {
+    public TreeTrim(LinkedList<Person> contestants) {
         LinkedList<Person> contestants2 = new LinkedList<>();
         contestants2.addAll(contestants);
         create(contestants, contestants2);
         this.isQueer = true;
-        ruleOutDuplicates();
+        //ruleOutDuplicates();
     }
 
     private void create(LinkedList<Person> contestantsMale, LinkedList<Person> contestantsFemale) {
@@ -46,34 +51,8 @@ public class MiniMax {
     }
 
     public Picks getCeremony(){
-        /*System.out.println("ruledout "+ ruledOut.toString());
-        System.out.println("data" + incompleateInfo.toString());
-        System.out.println("data index" + depthIndex.toString());
-        System.out.println("data beams" + numUnkown.toString());
-        //updateIncomplete();
-        System.out.println("ruledout "+ ruledOut.toString());
-        System.out.println("data" + incompleateInfo.toString());
-        System.out.println("data index" + depthIndex.toString());
-        System.out.println("data beams" + numUnkown.toString());*/
-        /*System.out.println("val: " +on.val);
-        System.out.println("above: " +on.above);
-        System.out.println("children: " +on.children);
-        System.out.println("------------");
-        if(on == null){
-            System.out.println("on is null! 18");
-        }
-        else{
-            System.out.println("on is not null! 18");
-        }*/
-        int numAbove = (contestants.size()/2) -2;
-        //while(true) {
-        //on = head;
-            //if already a leaf// going up
-            traverseUp();
-            //traversing down - works
-            traverseDown();
-       //s }
-            //on = on.addChildNode(contestants);
+        traverseUp();
+        traverseDown();
         return createSelection();
     }
 
@@ -102,7 +81,7 @@ public class MiniMax {
     }
 
     public void traverseDown(){
-        while (!on.children.isEmpty()) {
+        while (!on.children.isEmpty() && on.depth<toMatch.size()) {
             //traverse
 
             LinkedList<Person> toskip = new LinkedList<>();
@@ -122,8 +101,10 @@ public class MiniMax {
             //System.out.println("above t: " + on.above + " newabove " +newabove);
             //System.out.println("children t: " + on.children);
             //System.out.println("------------");
+
             if(newabove.size()< toMatch.size()){
-                if(on.children.isEmpty()) {
+                Person newVal = queerNewChild(newabove);
+                if(on.children.isEmpty() && newVal==null) {
                     traverseUp();
                 }
                 else{
@@ -131,7 +112,7 @@ public class MiniMax {
                     //System.out.println("data" + incompleateInfo.toString());
                     //System.out.println("depth -1:" + on.depth + "remove: " + toskip.toString());
                     if(isQueer){
-                        Person newVal = queerNewChild(newabove);
+                        //Person newVal = queerNewChild(newabove);
                         if(newVal==null){
                             on = on.addChildNode(on.children, toskip, newabove);
                         }else{
@@ -195,7 +176,7 @@ public class MiniMax {
             if(!in.contains(toMatch.get(i))) {
                 Match m = new Match(toMatch.get(i), selection.get(i));
                 matches.add(m);
-                in.add(toMatch.get(i));
+                //in.add(toMatch.get(i));
                 in.add(selection.get(i));
             }
         }
@@ -242,6 +223,7 @@ public class MiniMax {
         //System.out.println("data beams" + numUnkown.toString());
     }
 
+    //update table of incomplete information to try and narrow down wich are the correct matches from the group
     public void updateIncomplete(){
         for(int i=0; i<incompleateInfo.size(); i++){
             //System.out.println("hi i" + i);
@@ -272,6 +254,7 @@ public class MiniMax {
         }
     }
 
+    //rule out matches
     public void setRuledOut(int depth, Person p){
         setRuledOutHelper(depth, p);
         if(isQueer){
@@ -301,6 +284,7 @@ public class MiniMax {
         }
     }
 
+    //found a confirmed match
     public void setFound(int depth, Person p){
         confirmedAtdepth.add(depth);
         for(int i=0; i<toMatch.size(); i++){
@@ -324,6 +308,7 @@ public class MiniMax {
         ruledOut.put(depth,toRuleOut);
     }
 
+    //gets pair for truth both
     public Match getTruthBooth(){
         updateIncomplete();
         Node tb = TBhead;
@@ -333,6 +318,7 @@ public class MiniMax {
         return new Match(toMatch.get(n.depth), n.val);
     }
 
+    //for truthbooth traversal
     public Node breadthFirstSearch(Node tb){
         //get children
         LinkedList<Person> toskip = new LinkedList<>();
@@ -351,6 +337,7 @@ public class MiniMax {
         return tb;
     }
 
+    //takes into account result from truthbooth
     public void recordTruthBooth(boolean isMatch){
         if(isMatch){
             setFound(TBdepth, TBNode.val);
@@ -361,6 +348,7 @@ public class MiniMax {
         updateIncomplete();
     }
 
+    //used to find out if the branch has been chopped off
     public boolean isOnChopped(){
         boolean onChopped = false;
         LinkedList<Person> branch = new LinkedList<>();

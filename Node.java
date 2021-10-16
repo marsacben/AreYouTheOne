@@ -72,7 +72,12 @@ public class Node {
         //System.out.println("above n: " + above);
         //System.out.println("children n: " + children);
         grandChildren.addAll(contestants);
-        grandChildren.removeAll(newabove);
+        //grandChildren.removeAll(newabove);
+        for(int i =0; i<newabove.size(); i++){
+            if(grandChildren.contains(newabove.get(i))) {
+                grandChildren.remove(newabove.get(i));
+            }
+        }
         //System.out.println(grandChildren);
         //System.out.println("...");
         //System.out.println(ChildrenNodes);
